@@ -27,59 +27,31 @@
         .theater-card {
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .theater-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 30px rgba(0,0,0,0.08);
+        .theater-card:active {
+            transform: scale(0.98);
+        }
+        @media (min-width: 768px) {
+            .theater-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 20px 30px rgba(0,0,0,0.05);
+            }
         }
         .rating-badge {
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-        .action-btn {
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        .theater-card:hover .action-btn {
-            opacity: 1;
         }
         .critique-text {
             line-height: 1.8;
             white-space: pre-wrap;
         }
 
-        input[type=range]::-webkit-slider-thumb {
-            height: 24px;
-            width: 24px;
-            border-radius: 50%;
-            background: #000;
-            cursor: pointer;
-            -webkit-appearance: none;
-            margin-top: -10px;
-            border: 2px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 6px;
-            cursor: pointer;
-            background: #e5e7eb;
-            border-radius: 3px;
-        }
-
         .modal-open {
             overflow: hidden;
         }
 
-        .top-five-container {
-            background: linear-gradient(to right, #1a1a1a, #000);
-            border-radius: 2rem;
-            padding: 2rem;
-            margin-bottom: 3rem;
-            color: white;
-        }
-
-        .top-item {
-            border-left: 2px solid rgba(255,255,255,0.1);
-            padding-left: 1rem;
+        /* Styles pour le Top 5 dans la modale */
+        .top-rank-circle {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: black;
         }
 
         #offline-indicator {
@@ -129,28 +101,21 @@
                     <button onclick="logout()" class="text-[10px] font-black text-gray-400 hover:text-red-500 uppercase tracking-widest transition">Déconnexion</button>
                 </div>
             </div>
-            <button onclick="openFormModal()" class="w-full md:w-auto bg-black text-white px-10 py-5 rounded-full shadow-xl font-bold active:scale-95 transition-all">
-                Nouveau souvenir
-            </button>
-        </header>
-
-        <!-- TOP 5 SECTION -->
-        <section id="top-five-section" class="hidden">
-            <div class="top-five-container">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold flex items-center gap-3"><i class="fas fa-crown text-yellow-500"></i> Le Panthéon (Top 5)</h2>
-                </div>
-                <div id="top-five-list" class="grid grid-cols-1 md:grid-cols-5 gap-6">
-                    <!-- Top 5 items injected here -->
-                </div>
+            <div class="flex gap-3 w-full md:w-auto">
+                <button onclick="openTopFiveModal()" class="flex-1 md:flex-none flex items-center justify-center gap-2 bg-amber-100 text-amber-800 px-6 py-5 rounded-3xl font-bold active:scale-95 transition-all">
+                    <i class="fas fa-crown"></i> Panthéon
+                </button>
+                <button onclick="openFormModal()" class="flex-[2] md:flex-none bg-black text-white px-8 py-5 rounded-3xl shadow-xl font-bold active:scale-95 transition-all">
+                    Nouveau souvenir
+                </button>
             </div>
-        </section>
+        </header>
 
         <!-- FILTERS & SEARCH -->
         <div class="flex flex-col md:flex-row gap-4 mb-12 items-center">
             <div class="flex-grow relative w-full">
                 <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-300"></i>
-                <input type="text" id="search-input" oninput="applyFilters()" placeholder="Rechercher..." class="w-full pl-14 pr-6 py-4 rounded-3xl border-none shadow-sm focus:ring-2 focus:ring-black outline-none bg-white">
+                <input type="text" id="search-input" oninput="applyFilters()" placeholder="Rechercher une pièce, un auteur..." class="w-full pl-14 pr-6 py-4 rounded-3xl border-none shadow-sm focus:ring-2 focus:ring-black outline-none bg-white">
             </div>
             <div class="flex gap-2 w-full md:w-auto">
                 <select id="sort-select" onchange="applyFilters()" class="flex-grow md:w-48 p-4 bg-white rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-black font-semibold text-sm cursor-pointer">
@@ -162,51 +127,86 @@
             </div>
         </div>
 
-        <div id="theater-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+        <div id="theater-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-20">
             <div id="loading" class="col-span-full text-center py-20 text-gray-400 animate-pulse font-serif italic text-xl">Ouverture du rideau...</div>
+        </div>
+    </div>
+
+    <!-- MODAL PANTHÉON (TOP 5) -->
+    <div id="top-five-modal" onclick="closeOnBackdrop(event)" class="fixed inset-0 bg-black/80 hidden items-center justify-center p-4 z-[70] backdrop-blur-xl overflow-y-auto">
+        <div onclick="event.stopPropagation()" class="bg-[#111] text-white rounded-[2.5rem] max-w-lg w-full shadow-2xl overflow-hidden my-auto p-8 border border-white/10">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-bold flex items-center gap-3"><i class="fas fa-crown text-amber-500"></i> Mon Panthéon</h2>
+                <button onclick="closeModals()" class="text-white/40 hover:text-white p-2"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            <div id="pantheon-list" class="space-y-4">
+                <!-- Top 5 items injected here -->
+            </div>
+            <p id="pantheon-empty" class="text-center text-gray-500 italic py-10 hidden">Votre Panthéon est vide.<br>Ajoutez des pièces depuis leurs fiches !</p>
         </div>
     </div>
 
     <!-- MODAL LECTURE -->
     <div id="view-modal" onclick="closeOnBackdrop(event)" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4 z-50 backdrop-blur-md overflow-y-auto">
-        <div onclick="event.stopPropagation()" class="bg-white rounded-[2.5rem] max-w-2xl w-full shadow-2xl overflow-hidden my-auto">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-[2.5rem] max-w-2xl w-full shadow-2xl overflow-hidden my-auto relative">
             <div id="view-header-color" class="h-3 w-full"></div>
             <div class="p-8 md:p-10">
-                <div class="flex justify-between items-start mb-6">
-                    <div id="view-rating" class="rating-badge w-14 h-14 rounded-2xl flex items-center justify-center text-white font-black text-xl"></div>
-                    <button onclick="closeModals()" class="text-gray-300 hover:text-black p-2 transition"><i class="fas fa-times text-xl"></i></button>
+                <div class="flex justify-between items-start mb-8">
+                    <div id="view-rating" class="rating-badge w-16 h-16 rounded-2xl flex items-center justify-center text-white font-black text-2xl"></div>
+                    <div class="flex gap-4">
+                        <!-- Étoile déplacée ici -->
+                        <button id="view-star-btn" class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-50 text-2xl transition-all active:scale-90">
+                            <i class="fas fa-star"></i>
+                        </button>
+                        <button onclick="closeModals()" class="w-12 h-12 flex items-center justify-center rounded-full bg-gray-50 text-gray-300 hover:text-black transition"><i class="fas fa-times text-2xl"></i></button>
+                    </div>
                 </div>
-                <h2 id="view-title" class="text-3xl md:text-4xl font-bold text-gray-900 mb-2 leading-tight"></h2>
-                <p id="view-author" class="text-xl text-gray-500 font-medium mb-8"></p>
-                <div class="grid grid-cols-2 gap-6 mb-8 pb-8 border-b border-gray-100">
-                    <div><p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Lieu</p><p id="view-venue" class="font-semibold text-gray-800"></p></div>
-                    <div><p class="text-[10px] uppercase tracking-widest text-gray-400 font-bold mb-1">Date</p><p id="view-date" class="font-semibold text-gray-800"></p></div>
+                <h2 id="view-title" class="text-3xl md:text-5xl font-bold text-gray-900 mb-3 leading-tight"></h2>
+                <p id="view-author" class="text-xl text-gray-500 font-medium mb-10"></p>
+                
+                <div class="grid grid-cols-2 gap-8 mb-10 pb-8 border-b border-gray-100">
+                    <div>
+                        <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black mb-2">Lieu de Magie</p>
+                        <p id="view-venue" class="font-bold text-gray-800 text-lg"></p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black mb-2">Date du rideau</p>
+                        <p id="view-date" class="font-bold text-gray-800 text-lg"></p>
+                    </div>
                 </div>
-                <p id="view-critique" class="critique-text text-gray-700 italic serif text-lg"></p>
+                
+                <div class="relative">
+                    <i class="fas fa-quote-left absolute -left-4 -top-4 text-gray-100 text-6xl -z-10"></i>
+                    <p id="view-critique" class="critique-text text-gray-700 italic serif text-xl relative z-10"></p>
+                </div>
+
+                <div class="mt-12 flex justify-end">
+                    <button id="view-edit-btn" class="text-xs font-black uppercase tracking-widest text-gray-300 hover:text-black py-2 px-4 border border-gray-100 rounded-xl transition">Modifier la fiche</button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- MODAL FORM -->
     <div id="form-modal" onclick="closeOnBackdrop(event)" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-[60] backdrop-blur-sm overflow-y-auto">
-        <div onclick="event.stopPropagation()" class="bg-white rounded-[2rem] p-8 md:p-10 max-w-xl w-full shadow-2xl my-auto">
+        <div onclick="event.stopPropagation()" class="bg-white rounded-[2.5rem] p-8 md:p-10 max-w-xl w-full shadow-2xl my-auto">
             <h2 id="form-title" class="text-3xl font-bold mb-8">Nouveau Souvenir</h2>
             <form id="piece-form" class="space-y-5">
                 <input type="hidden" id="edit-id">
-                <input type="text" id="title" required placeholder="Titre de la pièce" class="w-full p-4 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-black">
-                <input type="text" id="author" required placeholder="Mise en scène / Compagnie" class="w-full p-4 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-black">
+                <input type="text" id="title" required placeholder="Titre de la pièce" class="w-full p-5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-black">
+                <input type="text" id="author" required placeholder="Mise en scène / Compagnie" class="w-full p-5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-black">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input type="text" id="venue" placeholder="Le Théâtre" class="w-full p-4 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-black">
-                    <input type="date" id="view-date-input" required class="w-full p-4 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-black">
+                    <input type="text" id="venue" placeholder="Le Théâtre" class="w-full p-5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-black">
+                    <input type="date" id="view-date-input" required class="w-full p-5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-black">
                 </div>
-                <div class="space-y-3 bg-gray-50 p-4 rounded-2xl">
-                    <div class="flex justify-between items-center"><label class="text-sm font-bold text-gray-500">Note</label><span class="bg-black text-white px-3 py-1 rounded-lg font-bold text-sm"><span id="rating-val">3</span> / 5</span></div>
-                    <input type="range" id="rating" min="0" max="5" step="0.5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black">
+                <div class="space-y-3 bg-gray-50 p-5 rounded-3xl">
+                    <div class="flex justify-between items-center"><label class="text-xs font-black uppercase tracking-widest text-gray-400">Note du spectacle</label><span class="bg-black text-white px-4 py-2 rounded-xl font-bold"><span id="rating-val">3</span> / 5</span></div>
+                    <input type="range" id="rating" min="0" max="5" step="0.5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-black mt-2">
                 </div>
-                <textarea id="critique" rows="4" placeholder="Votre ressenti..." class="w-full p-4 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-black"></textarea>
+                <textarea id="critique" rows="4" placeholder="Quelques mots sur votre ressenti..." class="w-full p-5 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-black"></textarea>
                 <div class="flex gap-4 pt-4">
-                    <button type="button" onclick="closeModals()" class="flex-1 py-4 font-bold text-gray-400">Annuler</button>
-                    <button type="submit" class="flex-1 py-4 bg-black text-white rounded-2xl font-bold">Enregistrer</button>
+                    <button type="button" onclick="closeModals()" class="flex-1 py-5 font-bold text-gray-400">Annuler</button>
+                    <button type="submit" class="flex-1 py-5 bg-black text-white rounded-3xl font-bold shadow-lg">Enregistrer</button>
                 </div>
             </form>
         </div>
@@ -238,7 +238,6 @@
         let unsubscribe = null;
         let isSignUp = false;
 
-        // AUTH ELEMENTS
         const authScreen = document.getElementById('auth-screen');
         const mainContent = document.getElementById('main-content');
         const authForm = document.getElementById('auth-form');
@@ -258,7 +257,7 @@
             try {
                 if (isSignUp) await createUserWithEmailAndPassword(auth, email, password);
                 else await signInWithEmailAndPassword(auth, email, password);
-            } catch (err) { alert(err.message); }
+            } catch (err) { alert("Erreur d'authentification. Vérifiez vos identifiants."); }
         };
 
         window.logout = () => signOut(auth);
@@ -310,7 +309,7 @@
             });
 
             renderPieces(filtered);
-            renderTopFive();
+            renderTopFiveInModal();
         };
 
         window.renderPieces = (data) => {
@@ -321,69 +320,93 @@
 
             data.forEach(piece => {
                 const color = getColorByRating(piece.rating);
-                const isTop = piece.isTopFive || false;
                 const card = document.createElement('div');
-                card.className = "theater-card bg-white rounded-[2.5rem] p-8 shadow-sm border border-gray-100 flex flex-col relative overflow-hidden cursor-pointer";
+                card.className = "theater-card bg-white rounded-[2.5rem] p-7 shadow-sm border border-gray-100 flex flex-col relative overflow-hidden cursor-pointer";
                 card.onclick = () => openViewModal(piece.id);
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-6">
                         <div class="rating-badge w-12 h-12 rounded-xl flex items-center justify-center text-white font-black shadow-md" style="background-color: ${color}">${piece.rating}</div>
-                        <div class="flex gap-2 action-btn">
-                            <button onclick="event.stopPropagation(); toggleTopFive('${piece.id}')" class="p-2 ${isTop ? 'text-yellow-400' : 'text-gray-200 hover:text-yellow-400'} transition"><i class="fas fa-star"></i></button>
-                            <button onclick="event.stopPropagation(); deletePiece('${piece.id}')" class="p-2 text-gray-200 hover:text-red-400 transition"><i class="fas fa-trash-alt"></i></button>
-                        </div>
+                        <button onclick="event.stopPropagation(); deletePiece('${piece.id}')" class="w-10 h-10 flex items-center justify-center text-gray-200 hover:text-red-400 transition"><i class="fas fa-trash-alt text-sm"></i></button>
                     </div>
-                    <h3 class="text-2xl font-bold text-gray-900 leading-tight mb-2 line-clamp-2">${piece.title}</h3>
-                    <p class="text-gray-400 font-medium line-clamp-1">${piece.author}</p>
-                    <div class="mt-8 flex items-center text-[10px] font-black uppercase tracking-widest text-gray-300">
+                    <h3 class="text-xl font-bold text-gray-900 leading-tight mb-1 line-clamp-2">${piece.title}</h3>
+                    <p class="text-gray-400 text-sm font-medium line-clamp-1 mb-6">${piece.author}</p>
+                    <div class="mt-auto pt-4 flex items-center text-[10px] font-black uppercase tracking-widest text-gray-300 border-t border-gray-50">
                         <i class="fas fa-calendar-alt mr-2"></i> ${piece.viewDate ? new Date(piece.viewDate).toLocaleDateString('fr-FR') : 'Date libre'}
-                        <span class="mx-2">•</span>
-                        <i class="fas fa-map-marker-alt mr-2"></i> ${piece.venue || 'Théâtre libre'}
                     </div>
                 `;
                 listEl.appendChild(card);
             });
         };
 
-        window.renderTopFive = () => {
+        // PANTHÉON MODAL LOGIC
+        window.openTopFiveModal = () => {
+            document.getElementById('top-five-modal').classList.replace('hidden', 'flex');
+            document.body.classList.add('modal-open');
+            renderTopFiveInModal();
+        };
+
+        window.renderTopFiveInModal = () => {
             const topFive = allPieces
                 .filter(p => p.isTopFive)
                 .sort((a, b) => (a.topRank || 99) - (b.topRank || 99))
                 .slice(0, 5);
             
-            const section = document.getElementById('top-five-section');
-            const list = document.getElementById('top-five-list');
+            const list = document.getElementById('pantheon-list');
+            const emptyMsg = document.getElementById('pantheon-empty');
             
             if (topFive.length > 0) {
-                section.classList.remove('hidden');
+                emptyMsg.classList.add('hidden');
                 list.innerHTML = topFive.map((p, i) => `
-                    <div class="top-item relative group cursor-pointer" onclick="openViewModal('${p.id}')">
-                        <span class="absolute -left-2 -top-2 w-6 h-6 bg-yellow-500 text-black text-[10px] font-black rounded-full flex items-center justify-center shadow-lg">${i+1}</span>
-                        <h4 class="font-bold text-sm line-clamp-1 group-hover:text-yellow-400 transition">${p.title}</h4>
-                        <p class="text-[10px] text-gray-500 truncate">${p.venue || 'Théâtre'}</p>
-                        <div class="flex gap-1 mt-2 opacity-0 group-hover:opacity-100 transition">
-                            <button onclick="event.stopPropagation(); moveRank('${p.id}', -1)" class="text-[10px] hover:text-white text-gray-500">↑</button>
-                            <button onclick="event.stopPropagation(); moveRank('${p.id}', 1)" class="text-[10px] hover:text-white text-gray-500">↓</button>
+                    <div class="flex items-center gap-4 bg-white/5 p-4 rounded-3xl border border-white/5 hover:bg-white/10 transition cursor-pointer" onclick="openViewModal('${p.id}')">
+                        <div class="top-rank-circle w-10 h-10 rounded-full flex items-center justify-center font-black flex-shrink-0">${i+1}</div>
+                        <div class="flex-grow min-w-0">
+                            <h4 class="font-bold truncate text-sm">${p.title}</h4>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest">${p.venue || 'Théâtre'}</p>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <button onclick="event.stopPropagation(); moveRank('${p.id}', -1)" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/20 flex items-center justify-center text-xs">↑</button>
+                            <button onclick="event.stopPropagation(); moveRank('${p.id}', 1)" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/20 flex items-center justify-center text-xs">↓</button>
                         </div>
                     </div>
                 `).join('');
             } else {
-                section.classList.add('hidden');
+                list.innerHTML = '';
+                emptyMsg.classList.remove('hidden');
             }
         };
 
-        window.toggleTopFive = async (id) => {
+        window.toggleTopFiveFromView = async (id) => {
             const piece = allPieces.find(p => p.id === id);
-            const currentTop = allPieces.filter(p => p.isTopFive).length;
-            if (!piece.isTopFive && currentTop >= 5) {
-                alert("Votre Top 5 est déjà plein ! Retirez un spectacle pour en ajouter un nouveau.");
+            const currentTopCount = allPieces.filter(p => p.isTopFive).length;
+            
+            if (!piece.isTopFive && currentTopCount >= 5) {
+                alert("Votre Panthéon est déjà plein ! Retirez un spectacle pour en ajouter un nouveau.");
                 return;
             }
+
+            const newState = !piece.isTopFive;
             await updateDoc(doc(db, "pieces", id), { 
-                isTopFive: !piece.isTopFive,
-                topRank: piece.isTopFive ? null : currentTop + 1
+                isTopFive: newState,
+                topRank: newState ? currentTopCount + 1 : null
             });
+            
+            // Update the star icon immediately in view
+            updateStarIcon(id, newState);
         };
+
+        function updateStarIcon(id, isTop) {
+            const btn = document.getElementById('view-star-btn');
+            if (isTop) {
+                btn.classList.replace('bg-gray-50', 'bg-amber-400');
+                btn.classList.replace('text-gray-200', 'text-white');
+                btn.classList.add('text-white');
+                btn.classList.remove('text-gray-400');
+            } else {
+                btn.classList.replace('bg-amber-400', 'bg-gray-50');
+                btn.classList.replace('text-white', 'text-gray-400');
+                btn.classList.add('text-gray-400');
+            }
+        }
 
         window.moveRank = async (id, dir) => {
             const topFive = allPieces.filter(p => p.isTopFive).sort((a, b) => (a.topRank || 0) - (b.topRank || 0));
@@ -400,7 +423,7 @@
             const form = document.getElementById('piece-form');
             form.reset();
             document.getElementById('edit-id').value = id || '';
-            document.getElementById('form-title').innerText = id ? "Modifier" : "Nouveau Souvenir";
+            document.getElementById('form-title').innerText = id ? "Modifier le souvenir" : "Nouveau Souvenir";
             if (id) {
                 const p = allPieces.find(p => p.id === id);
                 document.getElementById('title').value = p.title;
@@ -419,15 +442,14 @@
         };
 
         window.closeModals = () => {
-            document.getElementById('view-modal').classList.replace('flex', 'hidden');
-            document.getElementById('form-modal').classList.replace('flex', 'hidden');
+            document.querySelectorAll('#view-modal, #form-modal, #top-five-modal').forEach(m => {
+                m.classList.replace('flex', 'hidden');
+            });
             document.body.classList.remove('modal-open');
         };
 
-        // NOUVELLE FONCTION : Fermer si on clique sur l'arrière-plan
         window.closeOnBackdrop = (event) => {
-            // Si l'élément cliqué est le conteneur flouté lui-même (pas la carte blanche)
-            if (event.target.id === 'view-modal' || event.target.id === 'form-modal') {
+            if (event.target.id === 'view-modal' || event.target.id === 'form-modal' || event.target.id === 'top-five-modal') {
                 closeModals();
             }
         };
@@ -451,23 +473,48 @@
         };
 
         window.openViewModal = (id) => {
+            // Close other modals if any
+            closeModals();
+            
             const p = allPieces.find(p => p.id === id);
             const color = getColorByRating(p.rating);
+            
             document.getElementById('view-header-color').style.backgroundColor = color;
             document.getElementById('view-rating').style.backgroundColor = color;
             document.getElementById('view-rating').innerText = p.rating;
             document.getElementById('view-title').innerText = p.title;
             document.getElementById('view-author').innerText = p.author;
-            document.getElementById('view-venue').innerText = p.venue || 'Non spécifié';
-            document.getElementById('view-date').innerText = p.viewDate ? new Date(p.viewDate).toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'}) : 'Inconnue';
-            document.getElementById('view-critique').innerText = p.critique || "Pas de critique.";
+            document.getElementById('view-venue').innerText = p.venue || 'Théâtre libre';
+            document.getElementById('view-date').innerText = p.viewDate ? new Date(p.viewDate).toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'}) : 'Date inconnue';
+            document.getElementById('view-critique').innerText = p.critique || "Aucun ressenti enregistré.";
+            
+            // Setup Star button
+            const starBtn = document.getElementById('view-star-btn');
+            starBtn.onclick = () => toggleTopFiveFromView(id);
+            updateStarIcon(id, p.isTopFive);
+            
+            // Setup Edit button
+            document.getElementById('view-edit-btn').onclick = () => {
+                closeModals();
+                openFormModal(id);
+            };
+
             document.getElementById('view-modal').classList.replace('hidden', 'flex');
             document.body.classList.add('modal-open');
         };
 
-        window.deletePiece = async (id) => { if(confirm("Supprimer ?")) await deleteDoc(doc(db, "pieces", id)); };
+        window.deletePiece = async (id) => { 
+            if(confirm("Voulez-vous vraiment supprimer ce souvenir ?")) {
+                await deleteDoc(doc(db, "pieces", id)); 
+            }
+        };
+
         function getColorByRating(r) {
-            if (r >= 4.5) return '#D4AF37'; if (r >= 4.0) return '#E67E22'; if (r >= 3.0) return '#706fd3'; if (r >= 2.0) return '#34ace0'; return '#aaa69d';
+            if (r >= 4.5) return '#D4AF37'; 
+            if (r >= 4.0) return '#E67E22'; 
+            if (r >= 3.0) return '#706fd3'; 
+            if (r >= 2.0) return '#34ace0'; 
+            return '#aaa69d';
         }
         document.getElementById('rating').addEventListener('input', e => document.getElementById('rating-val').innerText = e.target.value);
     </script>
@@ -479,4 +526,5 @@ if ('serviceWorker' in navigator) {
     .catch(err => console.error('Erreur SW:', err));
 }
 </script>
+
 </html>
